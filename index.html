@@ -1,8 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
+    <title></title>
     <script src="https://miro.com/app/static/sdk.1.1.js"></script>
     <script type="module" src="main.js"></script>
-</head>
+    <script type="text/javascript" src="uploader.js"></script>
+  </head>
+
+  <body>
+    <form>
+      <div>
+        <label for="data">Choose JSON data</label>
+        <input type="file" id="data" name="JSON_DATA" accept=".json">
+      </div>
+    </form>
+  </body>
+
+  <script>
+    // TODO: move this into uploader.html once confirmed working
+    document.getElementById("data").addEventListener('change', getFile)
+
+    function getFile(event) {
+      const input = event.target
+      if ('files' in input && input.files.length > 0) {
+        display(input.files[0])
+      }
+    }
+  </script>
 </html>
