@@ -4,7 +4,44 @@ const icon1 = '<path fill="currentColor" fill-rule="nonzero" d="M20.156 7.762c-1
 
 const icon2 = '<path fill="#5B00FF" fill-rule="nonzero" d="M2.5 16.5C6 1.5 37-8 44.67 13.694c5.8 16.41-1.206 27.407-20.97 32.978-.724.205-1.109-.103-1.083-.84.094-2.679-1-5.396-3.617-5.832-2.068-.345-22.044.26-16.5-23.5zm19.414 8.286c1.03.23 2.016.316 2.936.274.357.53.704 1.111 1.26 2.079.834 1.45 1.247 2.119 1.897 3a1.5 1.5 0 1 0 2.415-1.779c-.563-.764-.931-1.36-1.711-2.717-.301-.523-.547-.944-.77-1.311 1.813-.855 2.994-2.403 3.135-4.37.298-4.143-4.115-6.457-10.284-4.909-.665.168-1.262.477-1.355 2.112a282.42 282.42 0 0 1-.391 5.737c-.203 2.711-.292 3.98-.395 5.79a1.5 1.5 0 1 0 2.995.17c.079-1.375.148-2.434.268-4.076zm.226-3.033c.12-1.646.193-2.714.267-3.988 3.85-.75 5.792.382 5.677 1.982-.127 1.758-2.432 2.97-5.944 2.006z"/>'
 
-console.log(data)
+var nudges_list = []
+// Traverses JSON and adds all nudge objects into a list called nudges_list
+for (var prop in data) {
+  if (!data.hasOwnProperty(prop)) continue
+  var i = data[prop]
+
+  for (var nudges in i) {
+    if (!i.hasOwnProperty(nudges)) continue
+    var all_nudges = i[nudges]
+
+    for (var nudge in all_nudges) {
+      if (!all_nudges.hasOwnProperty(nudge)) continue
+      var nudge = all_nudges[nudge]
+      nudges_list.push(nudge)
+    }
+  }
+}
+
+console.log(nudges_list)
+
+// TEST CODE TO DECODE BASE64 IMAGE
+for (var i = 0; i < nudges_list.length; i++) {
+  var obj = nudges_list[i]
+
+  for (var j in obj) {
+    if (!obj.hasOwnProperty(j)) continue
+    var cards_list = obj[j]
+
+    for (var k in cards_list) {
+      if (!cards_list.hasOwnProperty(k)) continue
+      var card = cards_list[k]
+      var img = new Image()
+  
+      img.src = card.image
+      document.body.appendChild(img)
+    }
+  }
+}
 
 miro.onReady(() => {
   miro.initialize({
