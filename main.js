@@ -10,7 +10,7 @@ miro.onReady(() => {
         toolbarSvgIcon: icon1,
         librarySvgIcon: icon2,
         onClick: () => {
-          miro.showNotification("uhhhhhh")
+          // miro.showNotification("uhhhhhh")
           miro.board.ui.openLibrary('uploader.html', {title: 'Upload JSON'})
         },
       },

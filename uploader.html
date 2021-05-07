@@ -2,50 +2,28 @@
 <html lang="en">
   <head>
     <title></title>
+    <script src="https://miro.com/app/static/sdk.1.1.js"></script>
+    <script type="module" src="main.js"></script>
+    <script type="text/javascript" src="uploader.js"></script>
   </head>
 
   <body>
-    <div class="scrollable-container">
-      <label for="data">Choose JSON data</label>
-      <input type="file" id="data" name="JSON_DATA" accept=".json">
-    </div>
-    <script src="https://miro.com/app/static/sdk.1.1.js"></script>
-    <script type="module" src="./main.js"></script>
-    <script>
-      const rowsContainer = document.getElementById('rows')
-
-      addRowInput('FRONT-END')
-      addRowInput('BACK-END')
-      addRowInput('DESIGN')
-      addRowInput('MARKETING')
-
-      document.getElementById('submit').addEventListener('click', () => drawTemplate(getLabels()))
-
-      function addRowInput(value) {
-        const row = document.createElement('div')
-        row.classList.add('row')
-        rowsContainer.appendChild(row)
-
-        //create input
-        const input = document.createElement('input')
-        input.type = 'text'
-        input.classList.add('row-input')
-        input.value = value
-        row.appendChild(input)
-
-        //create delete button
-        const button = document.createElement('button')
-        button.textContent = 'Delete'
-        button.classList.add('delete-button')
-        button.addEventListener('click', () => {
-          row.remove()
-        })
-        row.appendChild(button)
-      }
-
-      function getLabels() {
-        return Array.from(rowsContainer.querySelectorAll('input')).map((el) => el.value)
-      }
-    </script>
+    <form>
+      <div>
+        <label for="data">Choose JSON data</label>
+        <input type="file" id="data" name="JSON_DATA" accept=".json">
+      </div>
+    </form>
   </body>
+
+  <script>
+    document.getElementById("data").addEventListener('change', getFile)
+
+    function getFile(event) {
+      const input = event.target
+      if ('files' in input && input.files.length > 0) {
+        display(input.files[0])
+      }
+    }
+  </script>
 </html>
