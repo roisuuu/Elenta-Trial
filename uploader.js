@@ -1,4 +1,6 @@
 const cardWidth = 552
+const rowHeight = 500
+const fontSize = 36
 var nudgesList = []
 
 // Calls readFileContent and createNudgesList
@@ -22,22 +24,13 @@ function readFileContent(data) {
     })
 }
 
-// returns miro image given url of image
-async function createImage(img) {
-    const iObj = {type:"image", url:img, x:500, y:500}
-    const widget = await miro.board.widgets.create(iObj)
-    console.log(img)
-
-
-}
-
 // asynchronous test function that creates an image widget on a miro whiteboard
 async function createTestImage() {
     const widget = await miro.board.widgets.create({
         type: 'image',
         url: 'https://i.kym-cdn.com/entries/icons/original/000/029/000/imbaby.jpg',
-        x: 500,
-        y: 500
+        x: 0,
+        y: 0
     })
 
     miro.board.viewport.zoomToObject(widget)
@@ -66,31 +59,95 @@ function createNudgesList(data) {
 }
 
 // takes each nudge and creates a column to display all of the cards in it vertically
+// function displayNudges() {
+//     const widgets = []
+//     for (var i = 0; i < nudgesList.length; i++) {
+//         var obj = nudgesList[i]
+
+//         for (var j in obj) {
+//         if (!obj.hasOwnProperty(j)) continue
+//         var cards_list = obj[j]
+//         // TODO: see if each card is sorted by order already?
+
+//             for (var k in cards_list) {
+//                 if (!cards_list.hasOwnProperty(k)) continue
+//                 var card = cards_list[k]
+//                 var img = new Image()
+//                 img.src = card.image
+//                 // add image as a miro widget
+//                 createImage(card.image)
+                                
+//                 // Code below adds image to html document
+//                 document.body.appendChild(img)
+//             }
+//         }
+//     }
+
+//     miro.showNotification("done")
+//     var message = document.createElement("p")
+//     var txt = document.createTextNode("Uploaded!")
+//     message.appendChild(txt)
+//     document.body.appendChild(message)
+// }
+
 function displayNudges() {
+    const widgets = []
+    // create table, i = columnID
     for (var i = 0; i < nudgesList.length; i++) {
         var obj = nudgesList[i]
-
+        // add new column to table
+        const colX = i * cardWidth + 10 * i
+        widgets.push(getColumnLabel("TEST", colX))
+        
         for (var j in obj) {
-        if (!obj.hasOwnProperty(j)) continue
-        var cards_list = obj[j]
-        // TODO: see if each card is sorted by order already?
+            if (!obj.hasOwnProperty(j)) continue
+            var cards_list = obj[j]
+            
+            var cardNum = 0
+            var rowY = 0
+            // calculate rowY based off previous value 
 
-            for (var k in cards_list) {
-                if (!cards_list.hasOwnProperty(k)) continue
-                var card = cards_list[k]
-                var img = new Image()
-                img.src = card.image
-                // add image as a miro widget
-                createImage(card.image)
-                                
-                // Code below adds image to html document
-                document.body.appendChild(img)
-            }
+                for (var k in cards_list) {
+                    rowY = cardNum * rowHeight + 10 * cardNum
+                    if (!cards_list.hasOwnProperty(k)) continue
+                    var card = cards_list[k]
+
+                    var img = new Image()
+                    img.src = card.image
+
+                    // add image as a miro widget to column
+                    widgets.push(createImage(card.image, colX, rowY))
+                    // increment card num
+                    cardNum++
+
+                    // Code below adds image to html document
+                    document.body.appendChild(img)
+                }
         }
     }
-    miro.showNotification("done")
-    var message = document.createElement("p")
-    var txt = document.createTextNode("Uploaded!")
-    message.appendChild(txt)
-    document.body.appendChild(message)
+
+    miro.board.widgets.create(widgets)
+}
+
+function getColumnLabel(text, x) {
+    return {
+        type: 'text',
+        x: x,
+        y: -(rowHeight / 2 + fontSize),
+        text: text,
+        width: cardWidth,
+        style: {
+          fontSize: fontSize,
+          textColor: '#000000',
+          textAlign: 'c',
+        },
+    }
+}
+
+// returns miro image widget parameters given url of image
+// and position on the board
+function createImage(img, xPos, yPos) {
+    return {type:"image", url:img, x:xPos, y:yPos}
+    // const widget = await miro.board.widgets.create(iObj)
+    // console.log(img)
 }
