@@ -20,6 +20,35 @@ function readFileContent(data) {
     })
 }
 
+function transferTest(image64) {
+    const url = "https://transfer.sh/test.png"
+    fetch(url, {
+        "headers": {
+            "accept": "*/*",
+            "accept-language": "en-US,en;q=0.9",
+            "content-type": "image/png",
+            "sec-ch-ua": "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"90\", \"Google Chrome\";v=\"90\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin"
+        },
+        "referrer": "https://transfer.sh/",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "method": "PUT",
+        "mode": "cors",
+        "credentials": "omit",
+        "body": image64
+    })
+        .then(response => response.json())
+        .then(result => {
+            console.log('Success:', result);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        })
+}
+
 function createImage(img, num) {
     const url = "https://transfer.sh/"
     var uniqueURL = url + num + ".png"
@@ -38,9 +67,21 @@ function createImage(img, num) {
     formData.append("file", blob)
 
     fetch(uniqueURL, {
-        method: "POST",
-        mode: 'no-cors',
-        body: formData
+        "headers": {
+            "accept": "*/*",
+            "accept-language": "en-US,en;q=0.9",
+            "content-type": "image/png",
+            "sec-ch-ua": "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"90\", \"Google Chrome\";v=\"90\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin"
+        },
+        "referrer": "https://transfer.sh/",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "method": "PUT",
+        "mode": "cors",
+        "credentials": "omit"
     })
         .then(response => response.json())
         .then(result => {
@@ -48,7 +89,7 @@ function createImage(img, num) {
         })
         .catch(error => {
             console.error('Error:', error);
-        });
+        })
 }
 
 /**
@@ -122,7 +163,10 @@ function displayNudges(data) {
                 var img = new Image()
                 // console.log(card.order)
                 img.src = card.image
-                createImage(card.image, counter)
+                // createImage(card.image, counter)
+                // if (counter === 0) {
+                //     transferTest(card.image)
+                // }
 
                 // add image as a miro widget
                 // miro.board.widgets.create(img)

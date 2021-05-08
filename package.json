@@ -1,0 +1,24 @@
+{
+  "name": "Elenta-Trial",
+  "version": "1.0.0",
+  "description": "Trial task, creating a board in miro given JSON input",
+  "main": "main.js",
+  "dependencies": {
+    "axios": "^0.21.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roisuuu/Elenta-Trial.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/roisuuu/Elenta-Trial/issues"
+  },
+  "homepage": "https://github.com/roisuuu/Elenta-Trial#readme"
+}
