@@ -1,12 +1,14 @@
 const cardWidth = 552
-var nudges_list = []
+var nudgesList = []
 
-// Calls readFileContent and displayNudges
+// Calls readFileContent and createNudgesList
 function display(data) {
     readFileContent(data).then(content => {
         // miro.showNotification("Uploaded!")
         var obj = JSON.parse(content)
-        displayNudges(obj)
+        console.log(obj)
+        createNudgesList(obj)
+        displayNudges()
     }).catch(error => console.log(error))
 }
 
@@ -20,115 +22,30 @@ function readFileContent(data) {
     })
 }
 
-function transferTest(image64) {
-    const url = "https://transfer.sh/test.png"
-    fetch(url, {
-        "headers": {
-            "accept": "*/*",
-            "accept-language": "en-US,en;q=0.9",
-            "content-type": "image/png",
-            "sec-ch-ua": "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"90\", \"Google Chrome\";v=\"90\"",
-            "sec-ch-ua-mobile": "?0",
-            "sec-fetch-dest": "empty",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-site": "same-origin"
-        },
-        "referrer": "https://transfer.sh/",
-        "referrerPolicy": "strict-origin-when-cross-origin",
-        "method": "PUT",
-        "mode": "cors",
-        "credentials": "omit",
-        "body": image64
+// returns miro image given url of image
+async function createImage(img) {
+    const iObj = {type:"image", url:img, x:500, y:500}
+    const widget = await miro.board.widgets.create(iObj)
+    console.log(img)
+
+
+}
+
+// asynchronous test function that creates an image widget on a miro whiteboard
+async function createTestImage() {
+    const widget = await miro.board.widgets.create({
+        type: 'image',
+        url: 'https://i.kym-cdn.com/entries/icons/original/000/029/000/imbaby.jpg',
+        x: 500,
+        y: 500
     })
-        .then(response => response.json())
-        .then(result => {
-            console.log('Success:', result);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        })
+
+    miro.board.viewport.zoomToObject(widget)
 }
-
-function createImage(img, num) {
-    const url = "https://transfer.sh/"
-    var uniqueURL = url + num + ".png"
-
-    // Split the base64 string in data and contentType
-    var block = img.split(";");
-    // Get the content type of the image
-    var contentType = block[0].split(":")[1];
-    // get the real base64 content of the file
-    var realData = block[1].split(",")[1];
-
-    // Convert it to a blob to upload
-    var blob = b64toBlob(realData, contentType);
-
-    const formData = new FormData()
-    formData.append("file", blob)
-
-    fetch(uniqueURL, {
-        "headers": {
-            "accept": "*/*",
-            "accept-language": "en-US,en;q=0.9",
-            "content-type": "image/png",
-            "sec-ch-ua": "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"90\", \"Google Chrome\";v=\"90\"",
-            "sec-ch-ua-mobile": "?0",
-            "sec-fetch-dest": "empty",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-site": "same-origin"
-        },
-        "referrer": "https://transfer.sh/",
-        "referrerPolicy": "strict-origin-when-cross-origin",
-        "method": "PUT",
-        "mode": "cors",
-        "credentials": "omit"
-    })
-        .then(response => response.json())
-        .then(result => {
-            console.log('Success:', result);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        })
-}
-
-/**
- * Convert a base64 string in a Blob according to the data and contentType.
- * 
- * @param b64Data {String} Pure base64 string without contentType
- * @param contentType {String} the content type of the file i.e (image/jpeg - image/png - text/plain)
- * @param sliceSize {Int} SliceSize to process the byteCharacters
- * @see http://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
- * @return Blob
- */
- function b64toBlob(b64Data, contentType, sliceSize) {
-    contentType = contentType || '';
-    sliceSize = sliceSize || 512;
-
-    var byteCharacters = atob(b64Data);
-    var byteArrays = [];
-
-    for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-        var slice = byteCharacters.slice(offset, offset + sliceSize);
-
-        var byteNumbers = new Array(slice.length);
-        for (var i = 0; i < slice.length; i++) {
-            byteNumbers[i] = slice.charCodeAt(i);
-        }
-
-        var byteArray = new Uint8Array(byteNumbers);
-
-        byteArrays.push(byteArray);
-    }
-
-  var blob = new Blob(byteArrays, {type: contentType});
-  return blob;
-}
-
 
 // Appends decoded base64 images from given JSON object to document
-function displayNudges(data) {
-    // Traverses JSON and adds all nudge objects into a list called nudges_list
+function createNudgesList(data) {
+    // Traverses JSON and adds all nudge objects into a list called nudgesList
     for (var prop in data) {
         if (!data.hasOwnProperty(prop)) continue
         var i = data[prop]
@@ -140,17 +57,18 @@ function displayNudges(data) {
             for (var nudge in all_nudges) {
                 if (!all_nudges.hasOwnProperty(nudge)) continue
                 var nudge = all_nudges[nudge]
-                nudges_list.push(nudge)
+                nudgesList.push(nudge)
             }
         }
     }
 
-    console.log(nudges_list)
+    console.log(nudgesList)
+}
 
-    // TEST CODE TO DECODE BASE64 IMAGE
-    var counter = 0
-    for (var i = 0; i < nudges_list.length; i++) {
-        var obj = nudges_list[i]
+// takes each nudge and creates a column to display all of the cards in it vertically
+function displayNudges() {
+    for (var i = 0; i < nudgesList.length; i++) {
+        var obj = nudgesList[i]
 
         for (var j in obj) {
         if (!obj.hasOwnProperty(j)) continue
@@ -161,21 +79,16 @@ function displayNudges(data) {
                 if (!cards_list.hasOwnProperty(k)) continue
                 var card = cards_list[k]
                 var img = new Image()
-                // console.log(card.order)
                 img.src = card.image
-                // createImage(card.image, counter)
-                // if (counter === 0) {
-                //     transferTest(card.image)
-                // }
-
                 // add image as a miro widget
-                // miro.board.widgets.create(img)
+                createImage(card.image)
+                                
                 // Code below adds image to html document
                 document.body.appendChild(img)
-                counter++
             }
         }
     }
+    miro.showNotification("done")
     var message = document.createElement("p")
     var txt = document.createTextNode("Uploaded!")
     message.appendChild(txt)
