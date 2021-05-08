@@ -1,6 +1,6 @@
 const cardWidth = 552
 const rowHeight = 500
-const fontSize = 36
+const fontSize = 50
 var nudgesList = []
 
 // Calls readFileContent and createNudgesList
@@ -36,9 +36,8 @@ async function createTestImage() {
     miro.board.viewport.zoomToObject(widget)
 }
 
-// Appends decoded base64 images from given JSON object to document
+// Traverses given JSON file and adds all nudge objects into a list called nudgesList
 function createNudgesList(data) {
-    // Traverses JSON and adds all nudge objects into a list called nudgesList
     for (var prop in data) {
         if (!data.hasOwnProperty(prop)) continue
         var i = data[prop]
@@ -58,38 +57,7 @@ function createNudgesList(data) {
     console.log(nudgesList)
 }
 
-// takes each nudge and creates a column to display all of the cards in it vertically
-// function displayNudges() {
-//     const widgets = []
-//     for (var i = 0; i < nudgesList.length; i++) {
-//         var obj = nudgesList[i]
-
-//         for (var j in obj) {
-//         if (!obj.hasOwnProperty(j)) continue
-//         var cards_list = obj[j]
-//         // TODO: see if each card is sorted by order already?
-
-//             for (var k in cards_list) {
-//                 if (!cards_list.hasOwnProperty(k)) continue
-//                 var card = cards_list[k]
-//                 var img = new Image()
-//                 img.src = card.image
-//                 // add image as a miro widget
-//                 createImage(card.image)
-                                
-//                 // Code below adds image to html document
-//                 document.body.appendChild(img)
-//             }
-//         }
-//     }
-
-//     miro.showNotification("done")
-//     var message = document.createElement("p")
-//     var txt = document.createTextNode("Uploaded!")
-//     message.appendChild(txt)
-//     document.body.appendChild(message)
-// }
-
+// Displays nudges on a miro whiteboard using their SDK
 function displayNudges() {
     const widgets = []
     // create table, i = columnID
@@ -117,18 +85,24 @@ function displayNudges() {
 
                     // add image as a miro widget to column
                     widgets.push(createImage(card.image, colX, rowY))
-                    // increment card num
+                    // increment card num for correct Y spacing for each column
                     cardNum++
-
-                    // Code below adds image to html document
-                    document.body.appendChild(img)
                 }
         }
     }
 
-    miro.board.widgets.create(widgets)
+    try {
+        miro.board.widgets.create(widgets)
+        miro.showNotification("uploaded!")
+        miro.board.ui.closeLibrary()
+    } catch(err) {
+        console.log(err)
+        miro.showErrorNotification("something went wrong while uploading")
+    } 
 }
 
+// helper for displayNudges
+// creates a miro text label widget
 function getColumnLabel(text, x) {
     return {
         type: 'text',
@@ -136,18 +110,19 @@ function getColumnLabel(text, x) {
         y: -(rowHeight / 2 + fontSize),
         text: text,
         width: cardWidth,
+        scale: 3, // there's no fontSize attribute in miro, text size is determined by scale...
         style: {
-          fontSize: fontSize,
           textColor: '#000000',
           textAlign: 'c',
+          underline: 1,
+          bold: 1
         },
     }
 }
 
+// helper for displayNudges
 // returns miro image widget parameters given url of image
 // and position on the board
 function createImage(img, xPos, yPos) {
     return {type:"image", url:img, x:xPos, y:yPos}
-    // const widget = await miro.board.widgets.create(iObj)
-    // console.log(img)
 }
