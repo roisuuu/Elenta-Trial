@@ -1,5 +1,6 @@
 const cardWidth = 552
-const rowHeight = 500
+// TODO: dynamically shift this value depending on previous image
+const rowHeight = 650
 const fontSize = 50
 var nudgesList = []
 
@@ -58,37 +59,44 @@ function createNudgesList(data) {
 }
 
 // Displays nudges on a miro whiteboard using their SDK
+// TODO: reorder JSON so order is preserved? Ask Anshul if I should do this, or it should be done when creating the JSON
+// e.g. second nudge the intro picture is last in the JSON, so it's at the bottom of the nudge column
 function displayNudges() {
     const widgets = []
     // create table, i = columnID
     for (var i = 0; i < nudgesList.length; i++) {
         var obj = nudgesList[i]
         // add new column to table
-        const colX = i * cardWidth + 10 * i
-        widgets.push(getColumnLabel("TEST", colX))
+        const colX = i * cardWidth + 40 * i
         
-        for (var j in obj) {
-            if (!obj.hasOwnProperty(j)) continue
-            var cards_list = obj[j]
-            
-            var cardNum = 0
-            var rowY = 0
-            // calculate rowY based off previous value 
-
-                for (var k in cards_list) {
-                    rowY = cardNum * rowHeight + 10 * cardNum
-                    if (!cards_list.hasOwnProperty(k)) continue
-                    var card = cards_list[k]
-
-                    var img = new Image()
-                    img.src = card.image
-
-                    // add image as a miro widget to column
-                    widgets.push(createImage(card.image, colX, rowY))
-                    // increment card num for correct Y spacing for each column
-                    cardNum++
-                }
+        if (obj.hasOwnProperty("nudge_title")) {
+            widgets.push(getColumnLabel(obj.nudge_title, colX))
         }
+        
+        const cards_list = obj.cards
+        
+        var cardNum = 0
+        var rowY = 0
+
+        for (var k in cards_list) {
+            if (cardNum === 0) console.log(rowY)
+            var cardObj = cards_list[k]
+            var img = new Image()
+            img.src = cardObj.image
+            // create async function that promises image dimensions...
+            img.onload = () => {
+                console.log(img.clientWidth + 'x' + img.clientHeight)
+            }
+            // calculate rowY based off previous value 
+            rowY = cardNum * rowHeight + 10 * cardNum
+            
+            // add image as a miro widget to column
+            widgets.push(createImage(cardObj.image, colX, rowY))
+            // increment card num for correct Y spacing for each column
+            cardNum++
+
+            document.body.appendChild(img)
+        }        
     }
 
     try {

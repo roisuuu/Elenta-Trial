@@ -9,5 +9,22 @@
 
   <body>
     <p>Hi! :)</p>
+    <form>
+      <div>
+        <label for="data">Choose JSON data</label>
+        <input type="file" id="data" name="JSON_DATA" accept=".json">
+      </div>
+    </form>
   </body>
+
+  <script>
+    document.getElementById("data").addEventListener('change', getFile)
+
+    function getFile(event) {
+      const input = event.target
+      if ('files' in input && input.files.length > 0) {
+        display(input.files[0])
+      }
+    }
+  </script>
 </html>
