@@ -2,16 +2,13 @@ const cardWidth = 552
 // TODO: dynamically shift this value depending on previous image
 const rowHeight = 650
 const fontSize = 50
-var nudgesList = []
 
 // Calls readFileContent and createNudgesList
 function display(data) {
     readFileContent(data).then(content => {
-        // miro.showNotification("Uploaded!")
         var obj = JSON.parse(content)
         console.log(obj)
-        createNudgesList(obj)
-        displayNudges()
+        displayNudges(obj)
     }).catch(error => console.log(error))
 }
 
@@ -25,43 +22,8 @@ function readFileContent(data) {
     })
 }
 
-// asynchronous test function that creates an image widget on a miro whiteboard
-async function createTestImage() {
-    const widget = await miro.board.widgets.create({
-        type: 'image',
-        url: 'https://i.kym-cdn.com/entries/icons/original/000/029/000/imbaby.jpg',
-        x: 0,
-        y: 0
-    })
-
-    miro.board.viewport.zoomToObject(widget)
-}
-
-// Traverses given JSON file and adds all nudge objects into a list called nudgesList
-function createNudgesList(data) {
-    for (var prop in data) {
-        if (!data.hasOwnProperty(prop)) continue
-        var i = data[prop]
-
-        for (var nudges in i) {
-        if (!i.hasOwnProperty(nudges)) continue
-        var all_nudges = i[nudges]
-
-            for (var nudge in all_nudges) {
-                if (!all_nudges.hasOwnProperty(nudge)) continue
-                var nudge = all_nudges[nudge]
-                nudgesList.push(nudge)
-            }
-        }
-    }
-
-    console.log(nudgesList)
-}
-
 // Displays nudges on a miro whiteboard using their SDK
-// TODO: reorder JSON so order is preserved? Ask Anshul if I should do this, or it should be done when creating the JSON
-// e.g. second nudge the intro picture is last in the JSON, so it's at the bottom of the nudge column
-function displayNudges() {
+function displayNudges(nudgesList) {
     const widgets = []
     // create table, i = columnID
     for (var i = 0; i < nudgesList.length; i++) {
@@ -79,6 +41,7 @@ function displayNudges() {
         var rowY = 0
 
         for (var k in cards_list) {
+            // TODO: remove this line
             if (cardNum === 0) console.log(rowY)
             var cardObj = cards_list[k]
             var img = new Image()
@@ -133,4 +96,16 @@ function getColumnLabel(text, x) {
 // and position on the board
 function createImage(img, xPos, yPos) {
     return {type:"image", url:img, x:xPos, y:yPos}
+}
+
+// asynchronous test function that creates an image widget on a miro whiteboard
+async function createTestImage() {
+    const widget = await miro.board.widgets.create({
+        type: 'image',
+        url: 'https://i.kym-cdn.com/entries/icons/original/000/029/000/imbaby.jpg',
+        x: 0,
+        y: 0
+    })
+
+    miro.board.viewport.zoomToObject(widget)
 }
