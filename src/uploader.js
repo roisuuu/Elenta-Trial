@@ -1,9 +1,8 @@
+// constant throughout the process
 const cardWidth = 552
-// TODO: dynamically shift this value depending on previous image
-const rowHeight = 650
 const fontSize = 50
 
-// Calls readFileContent and createNudgesList
+// Calls readFileContent and displayNudges
 function display(data) {
     readFileContent(data).then(content => {
         var obj = JSON.parse(content)
@@ -23,42 +22,40 @@ function readFileContent(data) {
 }
 
 // Displays nudges on a miro whiteboard using their SDK
-function displayNudges(nudgesList) {
+async function displayNudges(nudgesList) {
     const widgets = []
     // create table, i = columnID
     for (var i = 0; i < nudgesList.length; i++) {
-        var obj = nudgesList[i]
+        var nudge = nudgesList[i]
         // add new column to table
         const colX = i * cardWidth + 40 * i
         
-        if (obj.hasOwnProperty("nudge_title")) {
-            widgets.push(getColumnLabel(obj.nudge_title, colX))
+        if (nudge.hasOwnProperty("nudge_title")) {
+            widgets.push(getColumnLabel(nudge.nudge_title, colX))
         }
         
-        const cards_list = obj.cards
+        const cards_list = nudge.cards
         
-        var cardNum = 0
         var rowY = 0
+        var prevY = 0
+        // the height of the prev image in the column
+        var prevHeight = 0
 
         for (var k in cards_list) {
-            // TODO: remove this line
-            if (cardNum === 0) console.log(rowY)
             var cardObj = cards_list[k]
-            var img = new Image()
-            img.src = cardObj.image
-            // create async function that promises image dimensions...
-            img.onload = () => {
-                console.log(img.clientWidth + 'x' + img.clientHeight)
-            }
-            // calculate rowY based off previous value 
-            rowY = cardNum * rowHeight + 10 * cardNum
+            
+            var imgURL = cardObj.image
+            var currHeight = await getDimensions(imgURL)
+            
+            // calculate rowY based off previous value and currHeight of image
+            rowY = prevY + prevHeight/2 + 10 + currHeight/2
             
             // add image as a miro widget to column
-            widgets.push(createImage(cardObj.image, colX, rowY))
-            // increment card num for correct Y spacing for each column
-            cardNum++
-
-            document.body.appendChild(img)
+            widgets.push(createImage(imgURL, colX, rowY))
+    
+            // update prevHeight and prevY
+            prevHeight = currHeight
+            prevY = rowY
         }        
     }
 
@@ -72,13 +69,28 @@ function displayNudges(nudgesList) {
     } 
 }
 
+// create async function that promises image dimensions...
+async function getDimensions(imgURL) {
+    return new Promise((resolve, reject) => {
+        let img = new Image()
+        
+        img.onload = () => {
+            resolve(img.naturalHeight)
+            // UNCOMMENT BELOW FOR QUICK DEBUGGING
+            // document.body.appendChild(img)
+        }
+        img.onerror = reject
+        img.src = imgURL
+    })
+}
+
 // helper for displayNudges
 // creates a miro text label widget
 function getColumnLabel(text, x) {
     return {
         type: 'text',
         x: x,
-        y: -(rowHeight / 2 + fontSize),
+        y: -(fontSize),
         text: text,
         width: cardWidth,
         scale: 3, // there's no fontSize attribute in miro, text size is determined by scale...
@@ -99,13 +111,13 @@ function createImage(img, xPos, yPos) {
 }
 
 // asynchronous test function that creates an image widget on a miro whiteboard
-async function createTestImage() {
-    const widget = await miro.board.widgets.create({
-        type: 'image',
-        url: 'https://i.kym-cdn.com/entries/icons/original/000/029/000/imbaby.jpg',
-        x: 0,
-        y: 0
-    })
+// async function createTestImage() {
+//     const widget = await miro.board.widgets.create({
+//         type: 'image',
+//         url: 'https://i.kym-cdn.com/entries/icons/original/000/029/000/imbaby.jpg',
+//         x: 0,
+//         y: 0
+//     })
 
-    miro.board.viewport.zoomToObject(widget)
-}
+//     miro.board.viewport.zoomToObject(widget)
+// }

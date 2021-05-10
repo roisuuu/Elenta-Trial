@@ -14,16 +14,10 @@
         <input type="file" id="data" name="JSON_DATA" accept=".json">
       </div>
     </form>
-
-    <div>
-      <button id="test">Generate Test Image</button>
-    </div>
   </body>
 
   <script>
     document.getElementById("data").addEventListener('change', getFile)
-
-    document.getElementById("test").addEventListener("click", createTestImage)
 
     function getFile(event) {
       const input = event.target
